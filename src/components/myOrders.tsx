@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import ExportOrderComponent from './ExportOrders';
 import { retrieveOrdersByDateRange, fetchAllOrders } from "../databaseConnection";
+import Cookies from 'js-cookie';
 
 
 interface DataRow {
@@ -54,7 +55,7 @@ const columns: TableColumn<DataRow>[] = [
 const OrdersComponent: React.FC = () => {
   const [orders, setOrders] = useState([]);
 
-  
+
 
   useEffect(() => {
 
@@ -65,7 +66,18 @@ const OrdersComponent: React.FC = () => {
     }).catch(error => {
       console.error(error);
     });
-    
+
+    const checkLogin = async () => {
+      //read cookie here
+      const cookieValue = Cookies.get('userLoginSuccess');
+      console.log(cookieValue);
+      if (!cookieValue) {
+        console.log('not logged in');
+        document.location = '/login';
+      }
+    };
+    checkLogin();
+
   }, []); // The second argument [] ensures the useEffect hook is only called once on component mount
 
   return (

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, FormControl, Button, InputGroup, Row, Col } from 'react-bootstrap';
 import { delhiveryApis } from '../delhiveryApis';
 import { submitOrder } from "../databaseConnection";
+import Cookies from 'js-cookie';
 
 
 interface FormData {
@@ -84,6 +85,7 @@ const NewOrderComponent: React.FC = () => {
             // });
             submitOrder(formData).then(result => {
                 console.log(result);
+                setFormData(initialFormData);
             }).catch(error => {
                 console.error(error);
             });
@@ -111,6 +113,19 @@ const NewOrderComponent: React.FC = () => {
             console.log(error);
         }
     }
+
+    useEffect(() => {
+        const checkLogin = async () => {
+          //read cookie here
+          const cookieValue = Cookies.get('userLoginSuccess');
+          console.log(cookieValue);
+          if(!cookieValue) {
+            console.log('not logged in');
+            document.location = '/login';
+          }
+        };
+        checkLogin();
+      }, []);    
 
     return (
         <>
