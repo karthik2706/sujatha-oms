@@ -6,46 +6,6 @@ import NewOrdercComponent from './components/newOrder';
 import HeaderComponent from './components/headerComponent';
 import OrdersComponent from './components/myOrders';
 
-interface Data {
-  mobile: string,
-  name: string,
-  pincode: string,
-  ref: string,
-  rname: string,
-  time: string,
-  tracking: string
-}
-
-const ordersData: Data[] = [
-  {
-    "mobile": "9492413765",
-    "name": "B.Bhagya Lakshmi",
-    "pincode": "522006",
-    "ref": "3765URG",
-    "rname": "",
-    "time": "28-01-2023",
-    "tracking": "4225610951801",
-  },
-  {
-    "mobile": "9492413765",
-    "name": "B.Bhagya Lakshmi",
-    "pincode": "522006",
-    "ref": "3765URG",
-    "rname": "",
-    "time": "28-01-2023",
-    "tracking": "4225610951801",
-  },
-  {
-    "mobile": "9492413765",
-    "name": "B.Bhagya Lakshmi",
-    "pincode": "522006",
-    "ref": "3765URG",
-    "rname": "",
-    "time": "28-01-2023",
-    "tracking": "4225610951801",
-  }
-];
-
 const App = () => (
   <Container>
     <>
@@ -57,7 +17,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<NewOrdercComponent />} />
-          <Route path="/myOrders" element={<OrdersComponent data={ordersData} />} />
+          <Route path="/myOrders" element={<OrdersComponent />} />
         </Routes>
       </BrowserRouter>
     </>
