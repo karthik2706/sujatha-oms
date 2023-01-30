@@ -1,6 +1,5 @@
 import * as $ from 'jquery';
 
-
 export const delhiveryApis = {
     async getPincodeDetails(pincode: string) {
         try {
@@ -36,10 +35,10 @@ export const delhiveryApis = {
                             order: orderObj.ref,
                             phone: orderObj.mobile,
                             products_desc: 'Artificial Jewellery',
-                            cod_amount: orderObj.cod || '0',
+                            cod_amount: '0',
                             name: orderObj.name,
                             country: orderObj.country,
-                            order_date: new Date(),
+                            order_date: orderObj.time,
                             total_amount: orderObj.price,
                             seller_add: '',
                             add: orderObj.address,

@@ -1,52 +1,53 @@
 import React, { useState } from 'react';
-import { Form, FormControl, Button, InputGroup } from 'react-bootstrap';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import { Form, FormControl, Button, InputGroup, Row, Col } from 'react-bootstrap';
 import { delhiveryApis } from '../delhiveryApis';
+import { submitOrder } from "../databaseConnection";
+
 
 interface FormData {
+    time: Date;
     mobile: string;
-    courierService: string;
+    vendor: string;
     pincode: string;
     name: string;
     address: string;
     city: string;
     state: string;
     country: string;
-    // email: string;
-    pickupLocation: string;
-    isCOD: string;
-    packageValue: string;
-    referenceNumber: string;
-    totalItems: string;
+    pickupD: string;
+    cod: string;
+    price: string;
+    ref: string;
+    qty: string;
     weight: string;
     trackingID: string;
-    resellerName: string;
-    resellerMobile: string;
+    rname: string;
+    rmobile: string;
 }
 
 const initialFormData: FormData = {
+    time: new Date(),
     mobile: '',
-    courierService: '',
+    vendor: '',
     pincode: '',
     name: '',
     address: '',
     city: '',
     state: '',
     country: 'India',
-    // email: '',
-    pickupLocation: '',
-    isCOD: '',
-    packageValue: '5000',
-    referenceNumber: '',
-    totalItems: '',
+    pickupD: '',
+    cod: '',
+    price: '5000',
+    ref: '',
+    qty: '',
     weight: '100',
     trackingID: '',
-    resellerName: '',
-    resellerMobile: ''
+    rname: '',
+    rmobile: ''
 };
 
 interface PincodeDetails {
+    pincode: string;
     city: string;
     state: string;
     country: string;
@@ -54,6 +55,7 @@ interface PincodeDetails {
 }
 
 const initialPincodeDetails: PincodeDetails = {
+    pincode: '',
     city: '',
     state: '',
     country: '',
@@ -74,14 +76,17 @@ const NewOrderComponent: React.FC = () => {
         console.log(formData);
         // You can add code here to send form data to the server or do other processing
         try {
-            const resp = delhiveryApis.createDelhiveryOrder(formData);
-            console.log(resp);
-            // if(data) {
-            //     setFormData((prevState) => ({ ...prevState, city: data.city, state: getTextBetweenParens(data.inc) }));
-            // } else {
-            //     console.log('Error in data');
-            //     setFormData((prevState) => ({ ...prevState, city: '', state: '' }));
-            // }
+            // delhiveryApis.createDelhiveryOrder(formData)
+            // .then(result => {
+            //     console.log(result);
+            // }).catch(error => {
+            //     console.error(error);
+            // });
+            submitOrder(formData).then(result => {
+                console.log(result);
+            }).catch(error => {
+                console.error(error);
+            });
         } catch (error) {
             console.log(error);
         }
@@ -97,7 +102,7 @@ const NewOrderComponent: React.FC = () => {
         try {
             const data = await delhiveryApis.getPincodeDetails(pincode);
             if(data) {
-                setFormData((prevState) => ({ ...prevState, city: data.city, state: getTextBetweenParens(data.inc) }));
+                setFormData((prevState) => ({ ...prevState, pincode: data.pin.toString(), city: data.city, state: getTextBetweenParens(data.inc) }));
             } else {
                 console.log('Error in data');
                 setFormData((prevState) => ({ ...prevState, city: '', state: '' }));
@@ -128,13 +133,12 @@ const NewOrderComponent: React.FC = () => {
                         </Form.Group>
                     </Col>
                     <Col className='mb-3'>
-                        <Form.Group controlId="formBasicCourierService">
+                        <Form.Group controlId="formBasicvendor">
                             <Form.Label>Courier Service</Form.Label>
                             <Form.Control
                                 as="select"
                                 name="vendor"
                                 required
-                                value={formData.courierService}
                                 onChange={handleChange}
                             >
                                 <option value="">Select courier service</option>
@@ -150,7 +154,6 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Control
                                 type="text"
                                 name="pincode"
-                                // value={formData.pincode}
                                 onBlur={(e) => handlePincodeBlur(e.target.value)}
                                 placeholder="Enter pincode"
                             />
@@ -248,7 +251,6 @@ const NewOrderComponent: React.FC = () => {
                                 as="select"
                                 name="pickupD"
                                 required
-                                value={formData.pickupLocation}
                                 onChange={handleChange}
                             >
                                 <option value="">Select pickup location</option>
@@ -263,13 +265,12 @@ const NewOrderComponent: React.FC = () => {
                 <Row>
                     
                     <Col className='mb-3'>
-                        <Form.Group controlId="formBasicIsCOD">
+                        <Form.Group controlId="formBasiccod">
                             <Form.Label>Is COD</Form.Label>
                             <Form.Control
                                 as="select"
                                 name="cod"
                                 required
-                                value={formData.isCOD}
                                 onChange={handleChange}
                             >
                                 <option value="">Select</option>
@@ -279,13 +280,13 @@ const NewOrderComponent: React.FC = () => {
                         </Form.Group>
                     </Col>
                     <Col className='mb-3'>
-                        <Form.Group controlId="formBasicPackageValue">
+                        <Form.Group>
                             <Form.Label>Package Value</Form.Label>
                             <Form.Control
                                 type="text"
                                 name="price"
                                 required
-                                value={formData.packageValue}
+                                value={formData.price}
                                 onChange={handleChange}
                                 placeholder=""
                             />
@@ -293,13 +294,12 @@ const NewOrderComponent: React.FC = () => {
                     </Col>
 
                     <Col className='mb-3'>
-                        <Form.Group controlId="formBasicReferenceNumber">
+                        <Form.Group>
                             <Form.Label>Reference Number</Form.Label>
                             <Form.Control
                                 type="text"
                                 name="ref"
                                 required
-                                value={formData.referenceNumber}
                                 onChange={handleChange}
                                 placeholder=""
                             />
@@ -318,7 +318,6 @@ const NewOrderComponent: React.FC = () => {
                                 type="text"
                                 name="qty"
                                 required
-                                value={formData.totalItems}
                                 onChange={handleChange}
                                 placeholder=""
                             />
@@ -344,9 +343,8 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>Tracking Number</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="tracking"
+                                name="trackingID"
                                 required
-                                value={formData.trackingID}
                                 onChange={handleChange}
                                 placeholder=""
                             />
@@ -365,7 +363,6 @@ const NewOrderComponent: React.FC = () => {
                                 type="text"
                                 name="rname"
                                 required
-                                value={formData.resellerName}
                                 onChange={handleChange}
                                 placeholder=""
                             />
@@ -379,7 +376,6 @@ const NewOrderComponent: React.FC = () => {
                                 type="text"
                                 name="rmobile"
                                 required
-                                value={formData.resellerMobile}
                                 onChange={handleChange}
                                 placeholder=""
                             />

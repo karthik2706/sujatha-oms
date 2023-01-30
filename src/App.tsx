@@ -51,8 +51,7 @@ const App = () => (
     <>
       <HeaderComponent brandName='Sujatha Gold Covering' links={[
         { title: "New Order", path: "/" },
-        { title: "Orders", path: "/myOrders" },
-        { title: "Export Orders", path: "/export" },
+        { title: "My Orders", path: "/myOrders" },
       ]}
       />
       <BrowserRouter>
@@ -66,5 +65,3 @@ const App = () => (
 );
 
 export default App;
-
-// ReactDOM.render(<App />, document.getElementById('root'));

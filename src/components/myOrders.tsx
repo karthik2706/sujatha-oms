@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 // import 'react-data-table-component/dist/react-data-table-component.css';
 import DataTable, { TableColumn } from 'react-data-table-component';
+import ExportOrderComponent from './ExportOrders';
 
 
 interface DataRow {
@@ -44,8 +45,9 @@ const OrdersComponent: React.FC<{ data: DataRow[] }> = ({ data }) => {
     return (
       <>
         <br />
-        <h2>Our Orders</h2>
+        <h2>My Orders</h2>
         <hr />
+        <ExportOrderComponent />
         <DataTable data={data} columns={columns} />
       </>
     );
