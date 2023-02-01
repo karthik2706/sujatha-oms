@@ -9,12 +9,11 @@ import { Login, Register } from './components/login';
 import { neo4jApis } from "./neo4jApis";
 import Cookies from 'js-cookie';
 
-
 const App = () => {
   return (
     <Container>
       <>
-        <HeaderComponent brandName='Sujatha Gold Covering' links={[
+        <HeaderComponent brandName='OMS' links={[
           { title: "New Order", path: "/" },
           { title: "My Orders", path: "/myOrders" },
         ]}

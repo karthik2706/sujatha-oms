@@ -18,46 +18,11 @@ export const delhiveryApis = {
 
     async createDelhiveryOrder(orderObj:any) {
         try {
-            console.log(orderObj);
-            const options = {
-                method: 'POST',
-                headers: { accept: 'application/json', 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    pickup_location: { name: orderObj.pickupD },
-                    shipments: [
-                        {
-                            return_pin: '110096',
-                            return_city: 'Delhi',
-                            return_phone: '1111111111',
-                            return_add: 'address',
-                            return_state: 'Delhi',
-                            return_country: 'India',
-                            order: orderObj.ref,
-                            phone: orderObj.mobile,
-                            products_desc: 'Artificial Jewellery',
-                            cod_amount: '0',
-                            name: orderObj.name,
-                            country: orderObj.country,
-                            order_date: orderObj.time,
-                            total_amount: orderObj.price,
-                            seller_add: '',
-                            add: orderObj.address,
-                            seller_name: orderObj.rname,
-                            seller_inv: '',
-                            pin: orderObj.pincode,
-                            quantity: orderObj.qty,
-                            payment_mode: 'PREPAID',
-                            state: orderObj.state,
-                            city: orderObj.city
-                        }
-                    ]
-                })
-            };
             const order = await $.ajax({
                 type: 'POST',
-                url: `https://track.delhivery.com/api/cmu/create.json`,
-                contentType: "application/json; charset=utf-8",
-            })
+                url: '//localhost:3001/createOrder',
+                data: orderObj
+            });
             return order;
         } catch (error) {
             console.log(error);

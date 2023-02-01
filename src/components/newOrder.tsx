@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 
 
 interface FormData {
-    time: Date;
     mobile: string;
     vendor: string;
     pincode: string;
@@ -27,7 +26,6 @@ interface FormData {
 }
 
 const initialFormData: FormData = {
-    time: new Date(),
     mobile: '',
     vendor: '',
     pincode: '',
@@ -40,7 +38,7 @@ const initialFormData: FormData = {
     cod: '',
     price: '5000',
     ref: '',
-    qty: '',
+    qty: '1',
     weight: '100',
     trackingID: '',
     rname: '',
@@ -67,31 +65,49 @@ const NewOrderComponent: React.FC = () => {
     const [formData, setFormData] = useState(initialFormData);
     const [pincodeData, setPincodeData] = useState();
 
+    const [addressResponse, setAddressResponse] = useState('');
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         setFormData((prevState) => ({ ...prevState, [name]: value }));
     };
 
+    const fetchData = async () => {
+        formData.trackingID = 'Testing1232312';
+        setFormData((prevState) => ({ ...prevState, trackingID: 'Testing1232312' }));
+        orderSubmit();
+        // try {
+        //     const res = await delhiveryApis.createDelhiveryOrder(formData);
+        //     const orderDetails = JSON.parse(res);
+        //     if(orderDetails.success === true) {
+        //         const tracking = orderDetails.packages[0].waybill;
+        //         formData.trackingID = tracking;
+        //         setFormData((prevState) => ({ ...prevState, trackingID: tracking }));
+        //         orderSubmit();
+        //     } else {
+        //         console.log('Order creation failed');
+        //         alert('Order failed');
+        //     }
+        // } catch (error) {
+        //     console.log(error);
+        //     alert('Order Creation failed');
+        // }
+    };
+
+    const orderSubmit = async () => {
+        console.log(formData);
+        submitOrder(formData).then(result => {
+            console.log('Order created in OMS');
+            setFormData(initialFormData);
+        }).catch(error => {
+            console.error(error);
+            alert('Order creation failed in OMS');
+        });
+    };
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log(formData);
-        // You can add code here to send form data to the server or do other processing
-        try {
-            // delhiveryApis.createDelhiveryOrder(formData)
-            // .then(result => {
-            //     console.log(result);
-            // }).catch(error => {
-            //     console.error(error);
-            // });
-            submitOrder(formData).then(result => {
-                console.log(result);
-                setFormData(initialFormData);
-            }).catch(error => {
-                console.error(error);
-            });
-        } catch (error) {
-            console.log(error);
-        }
+        fetchData();
     };
 
     const getTextBetweenParens = (str: string) => {
@@ -100,10 +116,10 @@ const NewOrderComponent: React.FC = () => {
         return (start != -1 && end != -1) ? str.substring(start + 1, end) : "";
     }
 
-    const handlePincodeBlur = async (pincode:string) => {
+    const handlePincodeBlur = async (pincode: string) => {
         try {
             const data = await delhiveryApis.getPincodeDetails(pincode);
-            if(data) {
+            if (data) {
                 setFormData((prevState) => ({ ...prevState, pincode: data.pin.toString(), city: data.city, state: getTextBetweenParens(data.inc) }));
             } else {
                 console.log('Error in data');
@@ -116,16 +132,38 @@ const NewOrderComponent: React.FC = () => {
 
     useEffect(() => {
         const checkLogin = async () => {
-          //read cookie here
-          const cookieValue = Cookies.get('userLoginSuccess');
-          console.log(cookieValue);
-          if(!cookieValue) {
-            console.log('not logged in');
-            document.location = '/login';
-          }
+            //read cookie here
+            const cookieValue = Cookies.get('userLoginSuccess');
+            console.log(cookieValue);
+            if (!cookieValue) {
+                console.log('not logged in');
+                document.location = '/login';
+            }
         };
+
         checkLogin();
-      }, []);    
+
+        //
+        // fetch('https://api.openai.com/v1/fine-tunes', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': `Bearer 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`
+        //     },
+        //     body: JSON.stringify({ 
+        //         "model": "file-OFlGp5PYJ9vh3mMS9ZVanW5q", 
+        //         "prompt": "M. MADHAVI CELL . 9640791421 DUTTALURI VARI STREET DR -NO:- 8/308 2 FLOOR PARASALA BARATHI SCHOOL BAZAR KOTHAPETA  KANIGIRI PRAKASAM  DISTRICT PIN CODE :- 523230", 
+        //     })
+        // })
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         console.log(data);
+        //         // setAddressResponse(data.choices[0].text);
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //     });
+    }, []);
 
     return (
         <>
@@ -134,11 +172,44 @@ const NewOrderComponent: React.FC = () => {
             <hr />
             <Form onSubmit={handleSubmit} className='pt-3'>
                 <Row>
+                    <Col className='mb-3 col-4'>
+                            <Form.Group controlId="formBasicvendor">
+                                <Form.Label>Courier Service</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name="vendor"
+                                    value={1}
+                                    required
+                                    onChange={handleChange}
+                                >
+                                    <option value="0">Select courier service</option>
+                                    <option value="1">Delhivery</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+
+                        <Col className='mb-3 col-4'>
+                        <Form.Group>
+                            <Form.Label>Reference Number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoComplete='off'
+                                name="ref"
+                                required
+                                onChange={handleChange}
+                                placeholder=""
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+                <hr />
+                <Row>
                     <Col className='mb-3'>
                         <Form.Group controlId="formBasicMobile">
                             <Form.Label>Mobile</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="mobile"
                                 required
                                 value={formData.mobile}
@@ -147,33 +218,33 @@ const NewOrderComponent: React.FC = () => {
                             />
                         </Form.Group>
                     </Col>
-                    <Col className='mb-3'>
-                        <Form.Group controlId="formBasicvendor">
-                            <Form.Label>Courier Service</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="vendor"
-                                required
-                                onChange={handleChange}
-                            >
-                                <option value="">Select courier service</option>
-                                <option value="fedex">Fedex</option>
-                                <option value="dhl">DHL</option>
-                                <option value="ups">UPS</option>
-                            </Form.Control>
-                        </Form.Group>
-                    </Col>
+                    
                     <Col className='mb-3'>
                         <Form.Group controlId="formBasicPincode">
                             <Form.Label>Pincode</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="pincode"
                                 onBlur={(e) => handlePincodeBlur(e.target.value)}
                                 placeholder="Enter pincode"
                             />
                         </Form.Group>
                     </Col>
+
+                    <Col className='mb-3'>
+                        <Form.Group controlId="formBasicTrackingId">
+                            <Form.Label>Tracking Number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoComplete='off'
+                                name="trackingID"
+                                value={formData.trackingID}
+                            />
+                        </Form.Group>
+                    </Col>
+
+
                 </Row>
 
 
@@ -183,6 +254,7 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="name"
                                 required
                                 value={formData.name}
@@ -194,11 +266,11 @@ const NewOrderComponent: React.FC = () => {
                     <Col className='mb-3'>
                         <Form.Group controlId="formBasicAddress">
                             <Form.Label>Address</Form.Label>
-                            <FormControl 
-                                as="textarea"  
+                            <FormControl
+                                as="textarea"
+                                autoComplete='off'
                                 name="address"
                                 required
-                                value={formData.address}
                                 onChange={handleChange}
                                 placeholder="Enter address"
                             />
@@ -210,7 +282,9 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>City</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="city"
+                                readOnly
                                 required
                                 value={formData.city}
                                 onChange={handleChange}
@@ -226,6 +300,8 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>State</Form.Label>
                             <Form.Control
                                 type="text"
+                                readOnly
+                                autoComplete='off'
                                 name="state"
                                 required
                                 value={formData.state}
@@ -239,7 +315,9 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>Country</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="country"
+                                readOnly
                                 required
                                 value={formData.country}
                                 onChange={handleChange}
@@ -264,41 +342,44 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>Pickup Location</Form.Label>
                             <Form.Control
                                 as="select"
+                                autoComplete='off'
                                 name="pickupD"
+                                value={1}
                                 required
                                 onChange={handleChange}
                             >
-                                <option value="">Select pickup location</option>
-                                <option value="location1">Location 1</option>
-                                <option value="location2">Location 2</option>
-                                <option value="location3">Location 3</option>
+                                <option value="0">Select pickup location</option>
+                                <option value="1">Sujatha Gold Covering</option>
                             </Form.Control>
                         </Form.Group>
                     </Col>
                 </Row>
 
                 <Row>
-                    
-                    <Col className='mb-3'>
+
+                    <Col className='mb-3 col-4'>
                         <Form.Group controlId="formBasiccod">
                             <Form.Label>Is COD</Form.Label>
                             <Form.Control
                                 as="select"
+                                autoComplete='off'
                                 name="cod"
+                                value={0}
                                 required
                                 onChange={handleChange}
                             >
                                 <option value="">Select</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
                             </Form.Control>
                         </Form.Group>
                     </Col>
-                    <Col className='mb-3'>
+                    <Col className='mb-3 col-4'>
                         <Form.Group>
                             <Form.Label>Package Value</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="price"
                                 required
                                 value={formData.price}
@@ -308,42 +389,34 @@ const NewOrderComponent: React.FC = () => {
                         </Form.Group>
                     </Col>
 
-                    <Col className='mb-3'>
-                        <Form.Group>
-                            <Form.Label>Reference Number</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="ref"
-                                required
-                                onChange={handleChange}
-                                placeholder=""
-                            />
-                        </Form.Group>
-                    </Col>
+                   
 
                 </Row>
 
                 <Row>
-                   
 
-                    <Col className='mb-3'>
+
+                    {/* <Col className='mb-3'>
                         <Form.Group controlId="formBasicTotalItems">
                             <Form.Label>Total Items</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="qty"
+                                value={formData.qty}
                                 required
                                 onChange={handleChange}
                                 placeholder=""
                             />
                         </Form.Group>
-                    </Col>
+                    </Col> */}
 
-                    <Col className='mb-3'>
+                    {/* <Col className='mb-3'>
                         <Form.Group controlId="formBasicWeight">
                             <Form.Label>Weight</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="weight"
                                 required
                                 value={formData.weight}
@@ -351,33 +424,19 @@ const NewOrderComponent: React.FC = () => {
                                 placeholder=""
                             />
                         </Form.Group>
-                    </Col>
+                    </Col> */}
 
-                    <Col className='mb-3'>
-                        <Form.Group controlId="formBasicTrackingId">
-                            <Form.Label>Tracking Number</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="trackingID"
-                                required
-                                onChange={handleChange}
-                                placeholder=""
-                            />
-                        </Form.Group>
-                    </Col>
-
+                    
                 </Row>
-
+                <hr />
                 <Row>
-                   
-
                     <Col className='mb-3'>
                         <Form.Group controlId="formBasicResellerName">
                             <Form.Label>Reseller Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="rname"
-                                required
                                 onChange={handleChange}
                                 placeholder=""
                             />
@@ -389,8 +448,8 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>Reseller Mobile</Form.Label>
                             <Form.Control
                                 type="text"
+                                autoComplete='off'
                                 name="rmobile"
-                                required
                                 onChange={handleChange}
                                 placeholder=""
                             />
@@ -405,7 +464,7 @@ const NewOrderComponent: React.FC = () => {
                             Submit
                         </Button>
                     </Col>
-                    
+
                 </Row>
             </Form>
         </>
