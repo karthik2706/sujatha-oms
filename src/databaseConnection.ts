@@ -22,29 +22,30 @@ export const submitOrder = async (orderData: any) => {
   driver.close();
 };
 
-// export const retrieveOrderData = async (orderId: string) => {
-//   // Define the driver and the connection credentials
-//   const driver = neo4j.driver(
-//     "neo4j+s://5f03bbc4.databases.neo4j.io",
-//     neo4j.auth.basic("neo4j", "4RcdFNCscZg_2nhoDGNqr6RRNZXQUIUGPOop3W5p67w")
-//   );
-//   const session = driver.session();
+export const retrieveOrderData = async (refId: string) => {
+  console.log(refId);
+  const driver = neo4j.driver(
+    "neo4j+s://5f03bbc4.databases.neo4j.io",
+    neo4j.auth.basic("neo4j", "4RcdFNCscZg_2nhoDGNqr6RRNZXQUIUGPOop3W5p67w")
+  );
+  const session = driver.session();
 
-//   console.log(orderId);
+  // Create a Cypher statement for retrieving orders within the given date range
+  const cypher = `MATCH (n:Order) WHERE n.ref = "${refId}" RETURN n`;
 
-//   // Create a Cypher statement for retrieving order data with the given order ID
-//   const cypher = `MATCH (n:Order) WHERE n.tracking = "${orderId}" RETURN n`;
-
-//   try {
-//     const result = await session.run(cypher);
-//     return result.records.map(record => record.get("o").properties);
-//   } catch (error) {
-//     console.error(error);
-//   }
-
-//   session.close();
-//   driver.close();
-// };
+  try {
+    const result = await session.run(cypher);
+    const resp = result.records.map(record => record.get("n").properties);
+    console.log(resp[0]);
+    return resp[0];
+  } catch (error) {
+    console.error(error);
+  } finally {
+    await session.close();
+  }
+  session.close();
+  driver.close();
+};
 
 export const retrieveOrdersByDateRange = async (startDate: string, endDate: string) => {
   // Define the driver and the connection credentials
@@ -79,6 +80,18 @@ export const fetchAllOrders = async () => {
     `MATCH (o:Order) RETURN o LIMIT 25`
   );
 
+  console.log(result);
+
   session.close();
-  return result.records.map(record => record.get("o").properties);
+
+  function resp(result: { records: any[]; }) {
+    return result.records.map(function(record: { get: (arg0: string) => { (): any; new(): any; properties: any; elementId: any; }; }) {
+      return {
+        elementId: record.get("o").elementId,
+        properties: record.get("o").properties,
+      };
+    });
+  }
+
+  return resp(result);
 };

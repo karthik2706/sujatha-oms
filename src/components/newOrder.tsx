@@ -5,45 +5,25 @@ import { submitOrder } from "../databaseConnection";
 import Cookies from 'js-cookie';
 
 
-interface FormData {
-    mobile: string;
-    vendor: string;
-    pincode: string;
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    pickupD: string;
-    cod: string;
-    price: string;
-    ref: string;
-    qty: string;
-    weight: string;
-    trackingID: string;
-    rname: string;
-    rmobile: string;
-}
-
-const initialFormData: FormData = {
-    mobile: '',
-    vendor: '',
-    pincode: '',
-    name: '',
-    address: '',
-    city: '',
-    state: '',
-    country: 'India',
-    pickupD: '',
-    cod: '',
-    price: '5000',
-    ref: '',
-    qty: '1',
-    weight: '100',
-    trackingID: '',
-    rname: '',
-    rmobile: ''
-};
+// interface FormData {
+//     mobile: string;
+//     vendor: string;
+//     pincode: string;
+//     name: string;
+//     address: string;
+//     city: string;
+//     state: string;
+//     country: string;
+//     pickupD: string;
+//     cod: string;
+//     price: string;
+//     ref: string;
+//     qty: string;
+//     weight: string;
+//     trackingID: string;
+//     rname: string;
+//     rmobile: string;
+// }
 
 interface PincodeDetails {
     pincode: string;
@@ -61,21 +41,26 @@ const initialPincodeDetails: PincodeDetails = {
     isServiceable: false,
 };
 
-const NewOrderComponent: React.FC = () => {
-    const [formData, setFormData] = useState(initialFormData);
+
+const NewOrderComponent: React.FC<{ formData: any }> = (props) => {
+    
+    const [formData, setFormData] = useState(props.formData);
+    
     const [pincodeData, setPincodeData] = useState();
 
     const [addressResponse, setAddressResponse] = useState('');
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-        setFormData((prevState) => ({ ...prevState, [name]: value }));
+        setFormData((prevState: any) => ({ ...prevState, [name]: value }));
     };
 
     const fetchData = async () => {
+        //dummy code
         formData.trackingID = 'Testing1232312';
-        setFormData((prevState) => ({ ...prevState, trackingID: 'Testing1232312' }));
+        setFormData((prevState: any) => ({ ...prevState, trackingID: 'Testing1232312' }));
         orderSubmit();
+        //Create order code
         // try {
         //     const res = await delhiveryApis.createDelhiveryOrder(formData);
         //     const orderDetails = JSON.parse(res);
@@ -98,7 +83,7 @@ const NewOrderComponent: React.FC = () => {
         console.log(formData);
         submitOrder(formData).then(result => {
             console.log('Order created in OMS');
-            setFormData(initialFormData);
+            setFormData(props.formData);
         }).catch(error => {
             console.error(error);
             alert('Order creation failed in OMS');
@@ -120,15 +105,15 @@ const NewOrderComponent: React.FC = () => {
         try {
             const data = await delhiveryApis.getPincodeDetails(pincode);
             if (data) {
-                setFormData((prevState) => ({ ...prevState, pincode: data.pin.toString(), city: data.city, state: getTextBetweenParens(data.inc) }));
+                setFormData((prevState: any) => ({ ...prevState, pincode: data.pin.toString(), city: data.city, state: getTextBetweenParens(data.inc) }));
             } else {
                 console.log('Error in data');
-                setFormData((prevState) => ({ ...prevState, city: '', state: '' }));
+                setFormData((prevState: any) => ({ ...prevState, city: '', state: '' }));
             }
         } catch (error) {
-            console.log(error);
+          console.log(error);
         }
-    }
+      };
 
     useEffect(() => {
         const checkLogin = async () => {
@@ -142,27 +127,6 @@ const NewOrderComponent: React.FC = () => {
         };
 
         checkLogin();
-
-        //
-        // fetch('https://api.openai.com/v1/fine-tunes', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': `Bearer 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`
-        //     },
-        //     body: JSON.stringify({ 
-        //         "model": "file-OFlGp5PYJ9vh3mMS9ZVanW5q", 
-        //         "prompt": "M. MADHAVI CELL . 9640791421 DUTTALURI VARI STREET DR -NO:- 8/308 2 FLOOR PARASALA BARATHI SCHOOL BAZAR KOTHAPETA  KANIGIRI PRAKASAM  DISTRICT PIN CODE :- 523230", 
-        //     })
-        // })
-        //     .then(res => res.json())
-        //     .then(data => {
-        //         console.log(data);
-        //         // setAddressResponse(data.choices[0].text);
-        //     })
-        //     .catch(error => {
-        //         console.error(error);
-        //     });
     }, []);
 
     return (
@@ -170,7 +134,11 @@ const NewOrderComponent: React.FC = () => {
             <br />
             <h2>New Order</h2>
             <hr />
-            <Form onSubmit={handleSubmit} className='pt-3'>
+            <Form onSubmit={handleSubmit} className='pt-3 newOrderForm'>
+            <div className="loading hide">
+                <div className="loading-spinner"></div>
+                <p>Loading...</p>
+            </div>
                 <Row>
                     <Col className='mb-3 col-4'>
                             <Form.Group controlId="formBasicvendor">
@@ -178,7 +146,7 @@ const NewOrderComponent: React.FC = () => {
                                 <Form.Control
                                     as="select"
                                     name="vendor"
-                                    value={1}
+                                    value={Number(formData.vendor) || 1}
                                     required
                                     onChange={handleChange}
                                 >
@@ -195,6 +163,7 @@ const NewOrderComponent: React.FC = () => {
                                 type="text"
                                 autoComplete='off'
                                 name="ref"
+                                value={formData.ref}
                                 required
                                 onChange={handleChange}
                                 placeholder=""
@@ -226,6 +195,8 @@ const NewOrderComponent: React.FC = () => {
                                 type="text"
                                 autoComplete='off'
                                 name="pincode"
+                                value={formData.pincode}
+                                onChange={handleChange}
                                 onBlur={(e) => handlePincodeBlur(e.target.value)}
                                 placeholder="Enter pincode"
                             />
@@ -237,16 +208,15 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Label>Tracking Number</Form.Label>
                             <Form.Control
                                 type="text"
+                                readOnly
                                 autoComplete='off'
+                                onChange={handleChange}
                                 name="trackingID"
                                 value={formData.trackingID}
                             />
                         </Form.Group>
                     </Col>
-
-
                 </Row>
-
 
                 <Row>
                     <Col className='mb-3'>
@@ -270,6 +240,7 @@ const NewOrderComponent: React.FC = () => {
                                 as="textarea"
                                 autoComplete='off'
                                 name="address"
+                                value={formData.address}
                                 required
                                 onChange={handleChange}
                                 placeholder="Enter address"
@@ -344,7 +315,7 @@ const NewOrderComponent: React.FC = () => {
                                 as="select"
                                 autoComplete='off'
                                 name="pickupD"
-                                value={1}
+                                value={Number(formData.pickupD) || 1}
                                 required
                                 onChange={handleChange}
                             >
@@ -364,7 +335,7 @@ const NewOrderComponent: React.FC = () => {
                                 as="select"
                                 autoComplete='off'
                                 name="cod"
-                                value={0}
+                                value={Number(formData.cod) || 0}
                                 required
                                 onChange={handleChange}
                             >
@@ -436,6 +407,7 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Control
                                 type="text"
                                 autoComplete='off'
+                                value={formData.rname}
                                 name="rname"
                                 onChange={handleChange}
                                 placeholder=""
@@ -449,6 +421,7 @@ const NewOrderComponent: React.FC = () => {
                             <Form.Control
                                 type="text"
                                 autoComplete='off'
+                                value={formData.rmobile}
                                 name="rmobile"
                                 onChange={handleChange}
                                 placeholder=""
@@ -472,3 +445,5 @@ const NewOrderComponent: React.FC = () => {
 };
 
 export default NewOrderComponent;
+
+
