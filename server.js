@@ -4,7 +4,7 @@ const axios = require("axios");
 const app = express();
 const fetch = require("fetch");
 const request = require('request');
-
+const twilio = require('twilio');
 
 const bodyParser = require('body-parser');
 
@@ -74,6 +74,34 @@ app.post("/createOrder", (req, resp) => {
 
   // res.send(orderObj);
 });
+
+app.post("/sendSMS", (req, resp) => {
+    const orderObj = req.body;
+      console.log(orderObj);
+    // const sendSMS = (orderObj.phone, orderObjtrackingID) => {
+      const accountSid = 'AC60f012a507431cce72ee32f7ed3406d1';
+      const authToken = 'dad89101d8a9a5fc89ff7dfecca16a14';
+      const client = twilio(accountSid, authToken);
+  
+      client.messages
+          .create({
+              body: 'Your Tracking id is - ' + orderObj.trackingID,
+              messagingServiceSid: 'MG1e3650e5897466a69d34ee9f8b74987f',
+              to: '+91 9948660666'//+orderObj.mobile,
+          })
+          .then(() => {
+              console.log('SMS sent successfully');
+              resp.send('SMS sent successfully');
+          })
+          .catch((error) => {
+              console.log('Error sending SMS:', error);
+          });
+    // };
+
+});
+
+
+  
 
 app.listen(3001, () => {
   console.log("Example app listening on port 3001");

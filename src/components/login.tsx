@@ -9,9 +9,11 @@ interface LoginProps {
     neo4jApis: any;
 }
 
-export const Register = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
 
+const loginData = { email: '', password: '' };
+
+export const Register = () => {
+    const [formData, setFormData] = useState(loginData);
 
     const handleInputChange = (event: any) => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -31,9 +33,13 @@ export const Register = () => {
 
     return (
         <form className='form-control' onSubmit={handleSubmit}>
-            <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email" />
-            <input type="password" name="password" value={formData.password} onChange={handleInputChange} placeholder="Password" />
-            <button type="submit">Register</button>
+            <br />
+            <input type="email" className='form-control' name="email" value={formData.email} onChange={handleInputChange} placeholder="Email" />
+            <br />
+            <input type="password" className='form-control' name="password" value={formData.password} onChange={handleInputChange} placeholder="Password" />
+            <br />
+            <button className='btn btn-primary' type="submit">Register</button>
+            <br /><br />
         </form>
     );
 };
@@ -67,7 +73,6 @@ export const Login = () => {
     };
 
     return (
-
         <>
             <br />
             <h1>Login</h1>
@@ -91,6 +96,7 @@ export const Login = () => {
                 />
                 <br />
                 <button type="submit" className='btn btn-primary'>Login</button>
+                <br />
                 <br />
             </form>
         </>

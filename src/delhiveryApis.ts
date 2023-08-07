@@ -36,5 +36,18 @@ export const delhiveryApis = {
         } catch (error) {
             console.log(error);
         }
+    },
+
+    async sendSMSOrder(orderObj:any) {
+        try {
+            const order = await $.ajax({
+                type: 'POST',
+                url: '//localhost:3001/sendSMS',
+                data: orderObj
+            });
+            return order;
+        } catch (error) {
+            console.log(error);
+        }
     }
 }

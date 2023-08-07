@@ -95,3 +95,27 @@ export const fetchAllOrders = async () => {
 
   return resp(result);
 };
+
+export const deleteNode = async (label: string, property: string, value: any) => {
+  const driver = neo4j.driver(
+    "neo4j+s://5f03bbc4.databases.neo4j.io",
+    neo4j.auth.basic("neo4j", "4RcdFNCscZg_2nhoDGNqr6RRNZXQUIUGPOop3W5p67w")
+  );
+  
+  const session = driver.session();
+
+  try {
+    const result = await session.run(
+      `MATCH (n:${label} {${property}: $value})
+       DELETE n
+       RETURN count(n)`,
+      { value }
+    );
+
+    const count = result.records[0].get(0).toNumber();
+
+    return count === 1; // Return true if the node was successfully deleted
+  } finally {
+    session.close();
+  }
+};
